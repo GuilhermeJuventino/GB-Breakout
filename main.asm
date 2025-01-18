@@ -50,12 +50,46 @@ CopyTilemap:
   jp nz, CopyTilemap
 
   ; Turn LCD on
-  ld a, LCDCF_ON | LCDCF_BGON
+  ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
   ld [rLCDC], a
 
   ; Initialize display registers during the first blank frame
   ld a, %11100100
   ld [rBGP], a
+  ld a, %11100100
+  ld [rOBP0], a
+
+  ; Copy the paddle tile
+  ld de, Paddle
+  ld hl, $8000
+  ld bc, PaddleEnd - Paddle
+CopyPaddle:
+  ld a, [de]
+  ld [hli], a
+  inc de
+  dec bc
+  ld a, b
+  or a, c
+  jp nz, CopyPaddle
+
+  ; Clear OAM (Object Attribute Memory)
+  ld a, 0
+  ld b, 160
+  ld hl, _OAMRAM
+ClearOam:
+  ld [hli], a
+  dec b
+  jp nz, ClearOam
+
+  ; Write object properties to OAM
+  ld hl, _OAMRAM
+  ld a, 128 + 16 ; Object's Y coordinate
+  ld [hli], a
+  ld a, 16 + 8 ; Object's X Coordinate
+  ld [hli], a
+  ld a, 0 ; Ojbect's Tile ID and attributes
+  ld [hli], a
+  ld [hli], a
 
 Done:
   jp Done
@@ -294,3 +328,14 @@ Tilemap:
 	db $04, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $08, $07, $03, $16, $17, $18, $19, $03, 0,0,0,0,0,0,0,0,0,0,0,0
 	db $04, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $07, $03, $03, $03, $03, $03, $03, 0,0,0,0,0,0,0,0,0,0,0,0
 TilemapEnd:
+
+Paddle:
+    dw `13333331
+    dw `30000003
+    dw `13333331
+    dw `00000000
+    dw `00000000
+    dw `00000000
+    dw `00000000
+    dw `00000000
+PaddleEnd:
