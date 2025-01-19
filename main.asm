@@ -49,16 +49,6 @@ CopyTilemap:
   or a, c
   jp nz, CopyTilemap
 
-  ; Turn LCD on
-  ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
-  ld [rLCDC], a
-
-  ; Initialize display registers during the first blank frame
-  ld a, %11100100
-  ld [rBGP], a
-  ld a, %11100100
-  ld [rOBP0], a
-
   ; Copy the paddle tile
   ld de, Paddle
   ld hl, $8000
@@ -94,6 +84,20 @@ ClearOam:
   ; Initializing Global Variables
   ld a, 0
   ld [wFrameCounter], a
+  
+  ; OBS: Every operation that involves copying and moving tiles or writting stuff to the OAM
+  ; needs to be performed BEFORE TURNING THE LCD ON! Otherwise, changes will be ignored
+  ; and glitches can happen
+
+  ; Turn LCD on
+  ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
+  ld [rLCDC], a
+
+  ; Initialize display registers during the first blank frame
+  ld a, %11100100
+  ld [rBGP], a
+  ld a, %11100100
+  ld [rOBP0], a
 
 Main:
   ; Main loop/entrypoint. A.K.A. our "Main() function"
