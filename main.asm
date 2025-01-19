@@ -91,10 +91,36 @@ ClearOam:
   ld [hli], a
   ld [hli], a
 
-Done:
-  jp Done
+  ; Initializing Global Variables
+  ld a, 0
+  ld [wFrameCounter], a
 
+Main:
+  ; Main loop/entrypoint. A.K.A. our "Main() function"
+  ; Wait until it's *NOT* VBlank
+  ld a, [rLY]
+  cp 144
+  jp nc, Main
+WaitVBlank2:
+  ld a, [rLY]
+  cp 144
+  jp c, WaitVBlank2
 
+  ld a, [wFrameCounter]
+  inc a
+  ld [wFrameCounter], a
+  cp a, 15 ; Run the following code every 15 frames
+  jp nz, Main
+
+  ; Set the frame counter back to zero
+  ld a, 0
+  ld [wFrameCounter], a
+
+  ; Move the paddle
+  ld a, [_OAMRAM + 1]
+  inc a
+  ld [_OAMRAM + 1], a
+  jp Main
 
 Tiles:
 	dw `33333333
@@ -339,3 +365,6 @@ Paddle:
     dw `00000000
     dw `00000000
 PaddleEnd:
+
+SECTION "Counter", WRAM0
+wFrameCounter: db
