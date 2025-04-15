@@ -1,4 +1,5 @@
 INCLUDE "hardware.inc"
+INCLUDE "utils.asm"
 
 SECTION "header", ROM0[$100]
   jp EntryPoint
@@ -21,46 +22,19 @@ WaitVBlank:
   ld de, Tiles
   ld hl, $9000 ; Location of tiles in VRAM
   ld bc, TilesEnd - Tiles ; Length of Tiles
-CopyTiles:
-  ; Load tile into a and copy that address into hl while incrementing it by 1
-  ld a, [de]
-  ld [hli], a
-
-  ; Advancing the loop (Incrementing tile index while decreasing TilesEnd)
-  inc de
-  dec bc
-
-  ; Bitwise OR b with c. If result is not 0, continue the loop
-  ld a, b
-  or a, c
-  jp nz, CopyTiles
+  call Memcpy
 
   ; Copy TileMap
   ld de, Tilemap
   ld hl, $9800
   ld bc, TilemapEnd - Tilemap
-CopyTilemap:
-  ; Literally does the exact same thing as CopyTiles, but with the tilemap
-  ld a, [de]
-  ld [hli], a
-  inc de
-  dec bc
-  ld a, b
-  or a, c
-  jp nz, CopyTilemap
+  call Memcpy
 
   ; Copy the paddle tile
   ld de, Paddle
   ld hl, $8000
   ld bc, PaddleEnd - Paddle
-CopyPaddle:
-  ld a, [de]
-  ld [hli], a
-  inc de
-  dec bc
-  ld a, b
-  or a, c
-  jp nz, CopyPaddle
+  call Memcpy
 
   ; Clear OAM (Object Attribute Memory)
   ld a, 0
