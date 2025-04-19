@@ -83,6 +83,7 @@ WaitVBlank2:
   ld a, [rLY]
   cp 144
   jp c, WaitVBlank2
+  call UpdateKeys
 
   ld a, [wFrameCounter]
   inc a
@@ -95,8 +96,33 @@ WaitVBlank2:
   ld [wFrameCounter], a
 
   ; Move the paddle
+checkLeft:
+  ld a, [wCurKeys]
+  and a, PADF_LEFT
+  jp z, checkRight
+moveLeft:
   ld a, [_OAMRAM + 1]
-  inc a
+  sub a, 3
+  ; Check if paddle has collided with the left wall
+  ; and prevent it from moving further if so
+  cp a, 15
+  jp z, Main
+
+  ld [_OAMRAM + 1], a
+  jp Main
+checkRight:
+  ld a, [wCurKeys]
+  and a, PADF_RIGHT
+  jp z, Main
+moveRight:
+  ld a, [_OAMRAM + 1]
+  add a, 3
+
+  ; Check if paddle has collided with the right wall
+  ; and prevent it from moving further if so
+  cp a, 105
+  jp z, Main
+
   ld [_OAMRAM + 1], a
   jp Main
 
