@@ -88,7 +88,7 @@ WaitVBlank2:
   ld a, [wFrameCounter]
   inc a
   ld [wFrameCounter], a
-  cp a, 15 ; Run the following code every 15 frames
+  cp a, 1 ; Run the following code every frame
   jp nz, Main
 
   ; Set the frame counter back to zero
@@ -102,7 +102,7 @@ checkLeft:
   jp z, checkRight
 moveLeft:
   ld a, [_OAMRAM + 1]
-  sub a, 3
+  sub a, 1
   ; Check if paddle has collided with the left wall
   ; and prevent it from moving further if so
   cp a, 15
@@ -116,7 +116,7 @@ checkRight:
   jp z, Main
 moveRight:
   ld a, [_OAMRAM + 1]
-  add a, 3
+  add a, 1
 
   ; Check if paddle has collided with the right wall
   ; and prevent it from moving further if so
