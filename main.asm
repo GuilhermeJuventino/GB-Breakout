@@ -1,5 +1,6 @@
 INCLUDE "hardware.inc"
 INCLUDE "utils.asm"
+INCLUDE "paddle.asm"
 
 SECTION "header", ROM0[$100]
   jp EntryPoint
@@ -31,9 +32,9 @@ WaitVBlank:
   call Memcpy
 
   ; Copy the paddle tile
-  ld de, Paddle
+  ld de, paddleImage
   ld hl, $8000
-  ld bc, PaddleEnd - Paddle
+  ld bc, paddleImageEnd - paddleImage
   call Memcpy
 
   ; Clear OAM (Object Attribute Memory)
@@ -96,34 +97,7 @@ WaitVBlank2:
   ld [wFrameCounter], a
 
   ; Move the paddle
-checkLeft:
-  ld a, [wCurKeys]
-  and a, PADF_LEFT
-  jp z, checkRight
-moveLeft:
-  ld a, [_OAMRAM + 1]
-  sub a, 1
-  ; Check if paddle has collided with the left wall
-  ; and prevent it from moving further if so
-  cp a, 15
-  jp z, Main
-
-  ld [_OAMRAM + 1], a
-  jp Main
-checkRight:
-  ld a, [wCurKeys]
-  and a, PADF_RIGHT
-  jp z, Main
-moveRight:
-  ld a, [_OAMRAM + 1]
-  add a, 1
-
-  ; Check if paddle has collided with the right wall
-  ; and prevent it from moving further if so
-  cp a, 105
-  jp z, Main
-
-  ld [_OAMRAM + 1], a
+  call MovePaddle
   jp Main
 
 Tiles:
@@ -232,16 +206,6 @@ Tilemap:
 	db $04, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $09, $07, $03, $03, $03, $03, $03, $03, 0,0,0,0,0,0,0,0,0,0,0,0
 TilemapEnd:
 
-Paddle:
-    dw `13333331
-    dw `30000003
-    dw `13333331
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-    dw `00000000
-PaddleEnd:
 
 SECTION "Counter", WRAM0
 wFrameCounter: db
