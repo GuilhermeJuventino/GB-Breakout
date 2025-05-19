@@ -57,3 +57,56 @@ UpdateKeys::
 .knownRet
   ret
 
+
+; Convert a pixel position to a tile address
+; hl = $9800 + X + Y  * 32
+; param b: X
+; param c: Y
+; return hl: tile address
+GetTileByPixel::
+    ; First we must divide by 8 to convert a pixel to tile position.
+    ; After that, we must multiply the Y coordinate by 32.
+    ; Those operations cancel out, therefore, we only need to mask the Y value.
+    ld a, c
+    and a, %11111000
+    ld l, a
+    ld h, 0
+    ; We now have the position * 8 in hl.
+    add hl, hl ; hl * 16
+    add hl, hl ; hl * 32
+    ; Convert X position to an offset.
+    ld a, b
+    srl a ; a / 2
+    srl a ; a / 4
+    srl a ; a / 8
+    ; Adding the two offsets together.
+    add a, l
+    ld l, a
+    adc a, h
+    sub a, l
+    ld h, a
+    ; Add the offset to the tilemap's base address, and then we're done.
+    ld bc, $9800
+    add hl, bc
+
+    ret
+
+; param a: Tile ID
+; return z: set if it's a wall tile
+IsWallTile::
+    cp a, $00
+    ret z
+    cp a, $01
+    ret z
+    cp a, $02
+    ret z
+    cp a, $04
+    ret z
+    cp a, $05
+    ret z
+    cp a, $06
+    ret z
+    cp a, $07
+
+    ret
+
