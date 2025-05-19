@@ -1,5 +1,17 @@
 SECTION "PaddleMain", ROM0
 
+InitPaddle::
+    ; Write paddle's object properties to OAM
+    ld a, 128 + 16 ; Object's Y coordinate
+    ld [hli], a
+    ld a, 16 + 46 ; Object's X Coordinate
+    ld [hli], a
+    ld a, 0 ; Ojbect's Tile ID and attributes
+    ld [hli], a
+    ld [hli], a
+
+    ret
+
 MovePaddle::
   ; Move the paddle
 checkLeft:

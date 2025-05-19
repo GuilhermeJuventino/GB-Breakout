@@ -1,6 +1,7 @@
 INCLUDE "hardware.inc"
 INCLUDE "utils.asm"
 INCLUDE "paddle.asm"
+INCLUDE "ball.asm"
 
 SECTION "header", ROM0[$100]
   jp EntryPoint
@@ -37,21 +38,22 @@ WaitVBlank:
   ld bc, paddleImageEnd - paddleImage
   call Memcpy
 
+  ld de, ballImage
+  ld hl, $8010
+  ld bc, ballImageEnd - ballImage
+  call Memcpy
+
   ; Clear OAM (Object Attribute Memory)
   ld a, 0
   ld b, 160
   ld hl, _OAMRAM
   call ClearOam
 
-  ; Write object properties to OAM
   ld hl, _OAMRAM
-  ld a, 128 + 16 ; Object's Y coordinate
-  ld [hli], a
-  ld a, 16 + 46; Object's X Coordinate
-  ld [hli], a
-  ld a, 0 ; Ojbect's Tile ID and attributes
-  ld [hli], a
-  ld [hli], a
+
+  ; Initialize sprite objects
+  call InitPaddle
+  call InitBall
 
   ; Initializing Global Variables
   ld a, 0
@@ -92,6 +94,9 @@ WaitVBlank2:
   ; Set the frame counter back to zero
   ld a, 0
   ld [wFrameCounter], a
+
+  ; Move the ball
+  call MoveBall
 
   ; Move the paddle
   call MovePaddle
