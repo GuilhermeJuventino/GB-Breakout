@@ -2,6 +2,7 @@ INCLUDE "hardware.inc"
 INCLUDE "utils.asm"
 INCLUDE "paddle.asm"
 INCLUDE "ball.asm"
+INCLUDE "bricks.asm"
 
 SECTION "header", ROM0[$100]
   jp EntryPoint

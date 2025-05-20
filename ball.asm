@@ -55,6 +55,8 @@ BounceOnTop:
     call IsWallTile
 
     jp nz, BounceOnRight
+    call HandleAndDestroyBrickLeft
+
     ld a, 1
     ld [wBallMomentumY], a
 
@@ -73,6 +75,8 @@ BounceOnRight:
     call IsWallTile
 
     jp nz, BounceOnLeft
+    call HandleAndDestroyBrickLeft
+
     ld a, -1
     ld [wBallMomentumX], a
 
@@ -91,6 +95,8 @@ BounceOnLeft:
     call IsWallTile
 
     jp nz, BounceOnBottom
+    call HandleAndDestroyBrickLeft
+
     ld a, 1
     ld [wBallMomentumX], a
 
@@ -109,6 +115,8 @@ BounceOnBottom:
     call IsWallTile
 
     jp nz, BounceDone
+    call HandleAndDestroyBrickLeft
+
     ld a, -1
     ld [wBallMomentumY], a
 
