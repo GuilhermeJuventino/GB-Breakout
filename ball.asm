@@ -10,8 +10,25 @@ InitBall::
     ld [hli], a
     ld [hli], a
 
-    ; The ball starts moving up and to the right
-    ld a, 1
+    ; The ball starts moving up-left or up-right randomly
+    ld d, -1
+    ld e, 1
+    call RandRange
+    ld [wBallMomentumX], a
+    ld a, -1
+    ld [wBallMomentumY], a
+
+    ret
+
+BallReset::
+    ld a, 16 + 16
+    ld [_OAMRAM + 5], a
+    ld a, 100 + 16
+    ld [_OAMRAM + 4], a
+
+    ld d, -1
+    ld e, 1
+    call RandRange
     ld [wBallMomentumX], a
     ld a, -1
     ld [wBallMomentumY], a
@@ -35,6 +52,11 @@ MoveBall::
 
     call BounceOnTop
     call BounceOnPaddle
+    call CheckBallFellOff
+
+    ld a, 1
+    cp a, b
+    call z, BallReset
 
     ret
 
@@ -146,6 +168,27 @@ BounceOnPaddle:
     ld [wBallMomentumY], a
 
 BounceOnPaddleDone:
+    ret
+
+CheckBallFellOff:
+    ld a, [_OAMRAM + 4] ; ball's Y coordinate
+    
+    ; Check if ball has fallen off-screen
+    cp a, 160
+    jp nz, BallNotFellOff
+    jp z, BallFellOff
+
+BallFellOff:
+    ld b, 1
+
+    jp CheckBallFellOffEnd
+
+BallNotFellOff:
+    ld b, 0
+
+    jp CheckBallFellOffEnd
+
+CheckBallFellOffEnd:
     ret
 
 SECTION "BallGraphics", ROM0
